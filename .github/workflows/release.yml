@@ -1,5 +1,7 @@
 name: Release
-on: push
+on: 
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
 
 jobs:
   build:
@@ -8,15 +10,48 @@ jobs:
 
       - uses: actions/checkout@v3
 
+      - name: Parse version info from tag
+        run: |
+          # GITHUB_REF is like refs/tags/v2.3.5, so strip the first 11 chars
+          VERSION=${GITHUB_REF:11}
+          MAJOR=`echo "$VERSION" | cut -d . -f 1`
+          MINOR=`echo "$VERSION" | cut -d . -f 2`
+          PATCH=`echo "$VERSION" | cut -d . -f 3`
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "version_major=$MAJOR" >> $GITHUB_ENV
+          echo "version_minor=$MINOR" >> $GITHUB_ENV
+          echo "version_patch=$PATCH" >> $GITHUB_ENV
+
       # This actions sets up java and necessary Maven configuration
       # to add the github registry and login, under id github
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'oracle'
+      
+      - name: Update POM version to tag version
+        run: mvn -B versions:set -DnewVersion=${{ env.version }} -DgenerateBackupPoms=false
 
       - name: Build project
         run: mvn --batch-mode -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml clean package
         env:
           USER_NAME: ${{ github.actor }}
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and Push Docker Image
+        run: |
+          IMG=ghcr.io/${{ github.repository }}
+          docker build \
+            --tag $IMG:${{ env.version }} \
+            --tag $IMG:${{ env.version_major }}.${{ env.version_minor }}.latest \
+            --tag $IMG:${{ env.version_major }}.latest \
+            --tag $IMG:latest \
+            .
+          docker push --all-tags $IMG
