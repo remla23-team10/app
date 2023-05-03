@@ -37,6 +37,7 @@ jobs:
         env:
           USER_NAME: ${{ github.actor }}
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODEL-SERVICE-HOST: none
       
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
