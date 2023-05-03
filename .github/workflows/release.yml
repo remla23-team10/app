@@ -1,0 +1,21 @@
+name: Release
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - uses: actions/checkout@v3
+
+      # This actions sets up java and necessary Maven configuration
+      # to add the github registry and login, under id github
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'oracle'
+
+      - name: Build project
+        run: mvn clean package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
