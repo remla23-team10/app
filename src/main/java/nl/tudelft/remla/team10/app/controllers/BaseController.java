@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import nl.tudelft.remla.team10.lib.util.VersionUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @Slf4j
