@@ -16,6 +16,7 @@ jobs:
           distribution: 'oracle'
 
       - name: Build project
-        run: mvn clean package
+        run: mvn -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml clean package
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USER_NAME: ${{ github.actor }}
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
