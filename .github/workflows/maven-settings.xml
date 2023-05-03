@@ -15,7 +15,7 @@
                 </repository>
                 <repository>
                     <id>github</id>
-                    <url>https://maven.pkg.github.com/remla23-team10/</url>
+                    <url>https://maven.pkg.github.com/remla23-team10/*</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
