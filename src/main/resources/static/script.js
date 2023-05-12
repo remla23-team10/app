@@ -1,4 +1,31 @@
+var buttonCorrect;
+var buttonIncorrect;
+var currentSentiment;
+var currentReview;
+
+function appendAlert(message, type) {
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = [
+        `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+        `   <div>${message}</div>`,
+        '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+        '</div>'
+    ].join('')
+
+    alertPlaceholder.append(wrapper)
+}
+
 function getSentiment(review){
+    if (review == undefined || review === ""){
+        buttonCorrect.disabled = true;
+        buttonIncorrect.disabled = true;
+        return;
+    }
+
+    buttonCorrect.disabled = false;
+    buttonIncorrect.disabled = false;
+
     const req = new XMLHttpRequest();
     req.responseType = "json"
     const url="http://" + window.location.host + "/sentiment";
@@ -8,22 +35,48 @@ function getSentiment(review){
 
     req.onload = (e) => {
         let response = req.response;
-        console.log(response.sentiment)
         let display = "";
         if(response != undefined && response.sentiment != undefined){
             if(response.sentiment == "positive"){
-                display = "&#128516";
+                display = "Positive &#128516";
             }else if(response.sentiment == "negative") {
-                display = "&#128542";
+                display = "Negative &#128542";
             }else{
-                display = "&#128533";
+                display = "There was a problem &#128533";
             }
+            currentSentiment = response.sentiment;
         }
 
+        currentReview = review;
         document.getElementById("result").innerHTML = display
+    }
+}
+
+function submitFeedback(correct) {
+    const req = new XMLHttpRequest();
+    req.responseType = "json"
+    const url = "http://" + window.location.host + "/sentiment/feedback";
+    req.open("POST", url);
+    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    req.send(JSON.stringify({
+        review: currentReview,
+        sentiment: currentSentiment,
+        correct: correct
+    }));
+
+    req.onload = (e) => {
+        if (req.status == 201) {
+            appendAlert("Thank you for your feedback", "success");
+        }else {
+            appendAlert("Something went wrong", "danger");
+        }
     }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("review").addEventListener("keyup",(e) => getSentiment(e.target.value));
+    buttonCorrect = document.getElementById("correct");
+    buttonIncorrect = document.getElementById("incorrect");
+    buttonCorrect.addEventListener("click", () => submitFeedback(true));
+    buttonIncorrect.addEventListener("click", () => submitFeedback(false));
 });
