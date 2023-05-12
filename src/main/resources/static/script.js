@@ -1,9 +1,10 @@
 function getSentiment(review){
     const req = new XMLHttpRequest();
     req.responseType = "json"
-    const url="http://" + window.location.host + "/sentiment?review=" + review;
+    const url="http://" + window.location.host + "/sentiment";
     req.open("POST", url);
-    req.send({review: review});
+    req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    req.send(JSON.stringify({review: review}));
 
     req.onload = (e) => {
         let response = req.response;
@@ -11,7 +12,11 @@ function getSentiment(review){
         let display = "";
         if(response != undefined && response.sentiment != undefined){
             if(response.sentiment == "positive"){
-                display = "&#128516"
+                display = "&#128516";
+            }else if(response.sentiment == "negative") {
+                display = "&#128542";
+            }else{
+                display = "&#128533";
             }
         }
 

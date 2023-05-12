@@ -14,24 +14,20 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class SentimentController {
 
-    @Value("${model-service.host}")
-    private String modelServiceHost;
+    @Value("${model-service.url}")
+    private String modelServiceUrl;
 
     @PostMapping("")
-    public Sentiment getSentiment(Review review){
+    public Sentiment getSentiment(@RequestBody Review review){
         log.info(review.toString());
 
         RestTemplate client = new RestTemplate();
-
-        String url = "http://" + modelServiceHost;
+        String url = modelServiceUrl + "/predict";
         log.info("Request to " + url);
 
-        // TODO: Implement request to model-service once it is done
-//        HttpEntity<Review> request = new HttpEntity<>(review);
-//        Sentiment sentiment = client.postForObject(url,request,Sentiment.class);
+        HttpEntity<Review> request = new HttpEntity<>(review);
+        Sentiment sentiment = client.postForObject(url,request,Sentiment.class);
 
-        Sentiment sentiment = new Sentiment();
-        sentiment.setSentiment("positive");
         return sentiment;
     }
 }
