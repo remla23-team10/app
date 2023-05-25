@@ -74,6 +74,11 @@ function submitFeedback(correct) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    var ip=window.location.host;
+    $("#history-link").attr("href", "http://"+ip+"/history");
+
+
     document.getElementById("review").addEventListener("keyup",(e) => getSentiment(e.target.value));
     buttonCorrect = document.getElementById("correct");
     buttonIncorrect = document.getElementById("incorrect");
