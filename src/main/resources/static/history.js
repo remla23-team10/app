@@ -1,6 +1,10 @@
 $(document).ready(function () {
+
     var ip = window.location.host;
     $("#home-link").attr("href", "http://" + ip + "/");
+
+    let button = document.getElementById("incrementalTraining");
+    button.addEventListener("click", () => location.href = "http://" + ip + "/incrementalTraining");
 
     $('#history').DataTable({
         ajax: {
@@ -26,6 +30,16 @@ $(document).ready(function () {
                         return '<span class="badge text-bg-success"> Correct prediction </span>';
                     } else {
                         return '<span class="badge text-bg-danger"> Incorrect prediction </span>';
+                    }
+                }
+            },
+            {
+                data: 'processed',
+                render: function (data, type, row) {
+                    if (data == true) {
+                        return '<span class="badge text-bg-success"> Sent to model for retraining</span>';
+                    } else {
+                        return '<span class="badge text-bg-danger"> Pending </span>';
                     }
                 }
             }

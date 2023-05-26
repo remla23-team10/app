@@ -112,9 +112,29 @@ public class ModelService {
 
         confusionMatrix[predicted][real]++;
 
+        feedback.setProcessed(false);
         feedbackHistory.add(feedback);
 
         Metrics.counter("final_predictions","sentiment", feedback.getSentiment(), "correct", feedback.getCorrect().toString()).increment();
+    }
+
+    public void incrementalTrain() throws Exception {
+
+        RestTemplate client = new RestTemplate();
+        String url = modelServiceUrl + "/incrementalTrain";
+        log.info("Request to " + url);
+
+        List<Feedback> unprocessedReviews = this.feedbackHistory.stream().filter(feedback -> !feedback.getProcessed()).toList();
+        HttpEntity<List<Feedback>> request = new HttpEntity<>(unprocessedReviews);
+        try {
+            client.put(url, request);
+            for(Feedback feedback: unprocessedReviews){
+                feedback.setProcessed(true);
+            }
+        } catch (Exception e) {
+            log.error("Error while calling model service", e);
+            throw new Exception(e);
+        }
     }
 
     private double getAccuracy(Integer[][] confusionMatrix){
