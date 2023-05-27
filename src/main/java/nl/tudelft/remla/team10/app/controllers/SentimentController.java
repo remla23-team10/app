@@ -55,4 +55,14 @@ public class SentimentController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/history")
+    public ResponseEntity<?> getHistory(){
+        try {
+            return new ResponseEntity<>(modelService.feedbackHistory, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error getting feedback history: " + e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

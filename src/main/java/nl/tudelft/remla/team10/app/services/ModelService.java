@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Slf4j
 public class ModelService {
@@ -26,6 +29,7 @@ public class ModelService {
     private static final String[] CORRECT = {"true", "false","unknown"};
     @Value("${model-service.url}")
     private String modelServiceUrl;
+    public List<Feedback> feedbackHistory;
 
     // Cumulative confusion matrix
     // First index is the actual sentiment, second index is the predicted sentiment
@@ -37,6 +41,7 @@ public class ModelService {
 
     @Autowired
     public ModelService(PrometheusMeterRegistry registry) {
+        this.feedbackHistory = new ArrayList<>();
         this.registry = registry;
         Metrics.globalRegistry.add(registry);
 
@@ -96,7 +101,7 @@ public class ModelService {
         }
     }
 
-    public void processFeedback(@RequestBody Feedback feedback){
+    public void processFeedback(Feedback feedback){
         int words = feedback.getReview().split(" ").length;
         DistributionSummary summary = registry.summary(REVIEW_SIZE,"prediction", feedback.getSentiment(), "correct", feedback.getCorrect().toString());
         summary.record(words);
@@ -106,6 +111,8 @@ public class ModelService {
                 !feedback.getCorrect() && predicted.equals(0) ? 1 : 0;
 
         confusionMatrix[predicted][real]++;
+
+        feedbackHistory.add(feedback);
 
         Metrics.counter("final_predictions","sentiment", feedback.getSentiment(), "correct", feedback.getCorrect().toString()).increment();
     }

@@ -19,4 +19,9 @@ public class BaseController {
 
         return "index.html";
     }
+
+    @GetMapping("/history")
+    public String getHistoryPage(){
+        return "history.html";
+    }
 }
