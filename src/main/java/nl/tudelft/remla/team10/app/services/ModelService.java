@@ -127,6 +127,8 @@ public class ModelService {
         List<Feedback> unprocessedReviews = this.feedbackHistory.stream().filter(feedback -> !feedback.getProcessed()).toList();
         HttpEntity<List<Feedback>> request = new HttpEntity<>(unprocessedReviews);
         try {
+            if (unprocessedReviews.size() == 0)
+                return;
             client.put(url, request);
             for(Feedback feedback: unprocessedReviews){
                 feedback.setProcessed(true);
