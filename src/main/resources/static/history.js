@@ -1,3 +1,10 @@
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+
 $(document).ready(function () {
 
     var ip = window.location.host;
@@ -5,6 +12,9 @@ $(document).ready(function () {
 
     let button = document.getElementById("incrementalTraining");
     button.addEventListener("click", () => location.href = "http://" + ip + "/incrementalTraining");
+    
+    let versionText = getCookie("ce-version") === "v1" ? "Experimental": "Stable";
+    $("#versionText").text(versionText);
 
     $('#history').DataTable({
         ajax: {
