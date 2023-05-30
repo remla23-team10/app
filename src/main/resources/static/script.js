@@ -73,11 +73,20 @@ function submitFeedback(correct) {
     }
 }
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     var ip=window.location.host;
     $("#history-link").attr("href", "http://"+ip+"/history");
 
+    let versionText = getCookie("ce-version") === "v1" ? "Experimental": "Stable";
+    $("#versionText").text(versionText);
 
     document.getElementById("review").addEventListener("keyup",(e) => getSentiment(e.target.value));
     buttonCorrect = document.getElementById("correct");
